@@ -23,29 +23,45 @@ int main()
     }
     //Ptr<SiftFeatureDetector> detector = SIFT::create();
     vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<FeatureDetector> f2d = ORB::create();
-    f2d->detect( image1, keypoints1 );
-    f2d->detect( image2, keypoints2 );
+    //Ptr<Feature2D> f2d = ORB::create();
+    //Ptr<ORB> f2d = ORB::create(20, 1.2f, 8, 31, 0, 2, ORB::HARRIS_SCORE, 31, 20);
+    //Ptr<SiftFeatureDetector> f2d = ORB::create();
+    //SiftFeatureDetector detector;
+    //Ptr<FeatureDetector> detector = ORB::create();
+    Ptr<FeatureDetector> detector = ORB::create(100, 1.2f, 8, 30, 0, 2, ORB::HARRIS_SCORE, 31, 20);
+    //Ptr<SiftDescriptorExtractor> detector = SIFT::create(100, 3, 0.04, 10, 1.6);
+    //Ptr<OrbFeatureDetector> detector(25, 1.0f, 2, 10, 0, 2, 0, 10);
+    //Ptr<SIFT> extractor = SIFT::create();
+    //Ptr<xfeatures2d::SIFT> sift;
+    //sift = cv::xfeatures2d::SIFT::create(0,4,0.04,10,1.6);
+    detector->detect(image1, keypoints1);
+    detector->detect(image2, keypoints2);
 
-  //-- Step 2: Calculate descriptors (feature vectors)    
-  Mat descriptors_1, descriptors_2; 
-  Ptr<SIFT> extractor = SIFT::create();
-  extractor->compute( image1, keypoints1, descriptors_1);
-  extractor->compute( image2, keypoints2, descriptors_2);
+    //-- Step 2: Calculate descriptors (feature vectors)    
+    Mat descriptors_1, descriptors_2;
+    //SiftDescriptorExtractor extr;
+    Ptr<SiftDescriptorExtractor> extr = SIFT::create(100, 3, 0.04, 10, 1.6);
+    //Ptr<SIFT> extr = SIFT::create();
+    extr->compute(image1, keypoints1, descriptors_1);
+    extr->compute(image2, keypoints2, descriptors_2);
 
-  //-- Step 3: Matching descriptor vectors using BFMatcher :
-  BFMatcher matcher;
-  vector< DMatch > matches;
-  matcher.match( descriptors_1, descriptors_2, matches );
-  double max_dist = 0; double min_dist = 100;
-  for( int i = 0; i < descriptors_1.rows; i++ )
-  { 
-    double dist = matches[i].distance;
-    if( dist < min_dist ) 
-      min_dist = dist;
-    if( dist > max_dist ) 
-      max_dist = dist;
-  }
+    //-- Step 3: Matching descriptor vectors using BFMatcher :
+    //BFMatcher matcher;
+    BFMatcher  matcher;
+    //FlannBasedMatcher matcher;
+    vector< DMatch > matches;
+    matcher.match(descriptors_1, descriptors_2, matches);
+    double max_dist = 0; double min_dist = 100;
+    double dist;
+    for (int i = 0; i < descriptors_1.rows; i++)
+    {
+        dist = matches[i].distance;
+        if (dist < min_dist)
+            min_dist = dist;
+        if (dist > max_dist)
+            max_dist = dist;
+    }
+
   vector<DMatch> good_matches;
 
   for( int i = 0; i < descriptors_1.rows; i++ )
@@ -193,4 +209,3 @@ imshow("test", img_matches1);
   //   { 
   //     printf( "-- Good Match [%d] Keypoint 1: %d  -- Keypoint 2: %d  \n", i, good_matches[i].queryIdx, good_matches[i].trainIdx ); 
   //   }
-   
